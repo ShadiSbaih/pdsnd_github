@@ -2,9 +2,14 @@ import time
 import pandas as pd
 import numpy as np
 
+# Constants
 CITY_DATA = { 'chicago': 'chicago.csv',
               'new york city': 'new_york_city.csv',
               'washington': 'washington.csv' }
+
+MONTHS = ('january', 'february', 'march', 'april', 'may', 'june')
+DAYS = ('saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday')
+DISPLAY_SEPARATOR = '-' * 40
 
 def get_user_input(prompt, valid_options, error_message):
     """Helper function to get and validate user input."""
@@ -33,22 +38,22 @@ def get_filters():
     )
     
     # Get user input for month
-    months = ('january', 'february', 'march', 'april', 'may', 'june', 'all')
+    months_with_all = MONTHS + ('all',)
     month = get_user_input(
         f"\nFilter {city}'s data by month?\nJanuary, February, March, April, May, June, or 'all': ",
-        months,
+        months_with_all,
         "Invalid input! Please choose a valid month or 'all'"
     )
     
     # Get user input for day
-    days = ('saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'all')
+    days_with_all = DAYS + ('all',)
     day = get_user_input(
         f"\nFilter {city}'s data by day?\nEnter day name or 'all': ",
-        days,
+        days_with_all,
         "Invalid input! Please enter a valid day or 'all'"
     )
     
-    print('-'*40)
+    print(DISPLAY_SEPARATOR)
     return city,month,day
 
 #########################################################################################
@@ -76,8 +81,7 @@ def load_data(city, month, day):
     # Filter by month if applicable.
     if month != 'all' :
         # Use the index of the months tuple to get the corresponding integer.
-        months = ('january', 'february', 'march', 'april', 'may', 'june')
-        month = months.index(month) + 1
+        month = MONTHS.index(month) + 1
         
         # Filter by month to create the new dataframe.
         df = df[df['month'] == month]
@@ -100,14 +104,13 @@ def time_stats(df,month,day):
         day (str): The day to filter by, or "all".
     """
     
-    months = ('january', 'february', 'march', 'april', 'may', 'june')
     print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
 
     # Calculating the most common month:
     if month == 'all' :
         most_common_month = df['month'].mode()[0]
-        print("The most common month: {}".format(months[most_common_month - 1]))
+        print("The most common month: {}".format(MONTHS[most_common_month - 1]))
         
     # Calculating the most common day of week:
     if day == 'all' :
@@ -120,7 +123,7 @@ def time_stats(df,month,day):
     print("The most common hour: ",most_common_hour)
 
     print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
+    print(DISPLAY_SEPARATOR)
 
 #########################################################################################
 def station_stats(df):
@@ -146,7 +149,7 @@ def station_stats(df):
     most_frequent_trip = df["Most Frequent Trip"].mode()[0]
     print("The most frequent trip is: ",most_frequent_trip)
     print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
+    print(DISPLAY_SEPARATOR)
 
 #########################################################################################
 def trip_duration_stats(df):
@@ -168,7 +171,7 @@ def trip_duration_stats(df):
     print("The average travel time is: ",mean_travel_time)
     
     print("\nThis took %s seconds." % (time.time() - start_time))
-    print('-'*40)
+    print(DISPLAY_SEPARATOR)
 
 #########################################################################################
 def user_stats(df):
