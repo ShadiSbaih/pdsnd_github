@@ -6,6 +6,14 @@ CITY_DATA = { 'chicago': 'chicago.csv',
               'new york city': 'new_york_city.csv',
               'washington': 'washington.csv' }
 
+def get_user_input(prompt, valid_options, error_message):
+    """Helper function to get and validate user input."""
+    user_input = input(prompt).lower()
+    while user_input not in valid_options:
+        print(error_message)
+        user_input = input(prompt).lower()
+    return user_input
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -17,26 +25,29 @@ def get_filters():
     """
     print('Hello! Let\'s explore some US bikeshare data!')
    
-    # Getting user input for city (chicago, new york city, washington):
-    city = input("which city do you want to explore ?, choose one:\nChicago\nNew York City\nWashington\n  ").lower()
-    while city not in CITY_DATA.keys():
-        print("That\'s invalid input!..\nPlease ensure that you type your choice from the provided cities ") 
-        city = input("which city do you want to explore ?\ntype:\n     Chicago\n Or   New York City\n Or   Washington\n  ").lower()
+    # Get user input for city
+    city = get_user_input(
+        "Which city do you want to explore? Choose one:\nChicago\nNew York City\nWashington\n  ",
+        CITY_DATA.keys(),
+        "Invalid input! Please choose from: Chicago, New York City, or Washington"
+    )
     
-    # Getting user input for month (all, january, february, ... , june):
-    months = ( 'january', 'february', 'march', 'april', 'may', 'june', 'all')
-    month = input("\n\nDo you want to filter {}\'s data by a particular month ? \nChoose from the list: \nJanuary \nFebruary \nMarch \nApril \nMay \nJune \nor type \"all\" to provide with no month filter: ".format(city)).lower()  
-    while month not in months:
-        print("That\'s invalid input!..\nPlease ensure that you type your choice from the provided list of month, or you can type \"all\" in case you want no day filter \n")
-        month = input("Try again.. \nDo you want to filter {}\'s data by a particular month ? \nChoose from the list: \nJanuary \nFebruary \nMarch \nApril \nMay \nJune \nor type \"all\" to provide with no month filter: ".format(city)).lower()
-              
-    # Getting user input for day of week (all, monday, tuesday, ... sunday):
-    days = ( 'saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'all')
-    day = input("\n\nDo you want to filter {}\'s data by a particular day ? \nName of the day \nor type \"all\" to provide with no day filter: ".format(city)).lower()
-    while day not in days:
-        print("That\'s invalid input!..\nPlease ensure that you type your choice from the provided list of month, or you can type \"all\" in case you want no day filter")
-        day = input("Try again.. \nDo you want to filter {}\'s data by a particular day ? \nName of the day \nor type \"all\" to provide with no day filter: ".format(city)).lower()
- 
+    # Get user input for month
+    months = ('january', 'february', 'march', 'april', 'may', 'june', 'all')
+    month = get_user_input(
+        f"\nFilter {city}'s data by month?\nJanuary, February, March, April, May, June, or 'all': ",
+        months,
+        "Invalid input! Please choose a valid month or 'all'"
+    )
+    
+    # Get user input for day
+    days = ('saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'all')
+    day = get_user_input(
+        f"\nFilter {city}'s data by day?\nEnter day name or 'all': ",
+        days,
+        "Invalid input! Please enter a valid day or 'all'"
+    )
+    
     print('-'*40)
     return city,month,day
 
@@ -52,20 +63,28 @@ def load_data(city, month, day):
     Returns:
         df - Pandas DataFrame containing city data filtered by month and day
     """
-    # Loading data for the specified city :   
+    # Load data file into a dataframe.
     df = pd.read_csv(CITY_DATA[city])
     
-    # splitting start time data by (month, day, hour) :
+    # Convert the Start Time column to datetime.
     df['Start Time'] = pd.to_datetime(df['Start Time'])
+
+    # Extract month and day of week from Start Time to create new columns.
     df['month'] = df['Start Time'].dt.month
     df['day'] = df['Start Time'].dt.weekday_name
     
-    # Evaluating & loading data for the specified city:
+    # Filter by month if applicable.
     if month != 'all' :
+        # Use the index of the months tuple to get the corresponding integer.
         months = ('january', 'february', 'march', 'april', 'may', 'june')
         month = months.index(month) + 1
+        
+        # Filter by month to create the new dataframe.
         df = df[df['month'] == month]
+
+    # Filter by day of week if applicable.
     if day != 'all' :
+        # Filter by day of week to create the new dataframe.
         df = df[df['day'] == day.title()]
         
     
@@ -73,7 +92,13 @@ def load_data(city, month, day):
 
 #########################################################################################
 def time_stats(df,month,day):
-    """Displays statistics on the most frequent times of travel."""
+    """Displays statistics on the most frequent times of travel.
+
+    Args:
+        df (DataFrame): The DataFrame to analyze.
+        month (str): The month to filter by, or "all".
+        day (str): The day to filter by, or "all".
+    """
     
     months = ('january', 'february', 'march', 'april', 'may', 'june')
     print('\nCalculating The Most Frequent Times of Travel...\n')
@@ -99,7 +124,11 @@ def time_stats(df,month,day):
 
 #########################################################################################
 def station_stats(df):
-    """Displays statistics on the most popular stations and trip."""
+    """Displays statistics on the most popular stations and trip.
+
+    Args:
+        df (DataFrame): The DataFrame to analyze.
+    """
 
     print('\nCalculating The Most Popular Stations and Trip...\n')
     start_time = time.time()
@@ -121,7 +150,11 @@ def station_stats(df):
 
 #########################################################################################
 def trip_duration_stats(df):
-    """Displays statistics on the total and average trip duration."""
+    """Displays statistics on the total and average trip duration.
+
+    Args:
+        df (DataFrame): The DataFrame to analyze.
+    """
 
     print('\nCalculating Trip Duration...\n')
     start_time = time.time()
@@ -139,7 +172,11 @@ def trip_duration_stats(df):
 
 #########################################################################################
 def user_stats(df):
-    """Displays statistics on bikeshare users."""
+    """Displays statistics on bikeshare users.
+
+    Args:
+        df (DataFrame): The DataFrame to analyze.
+    """
 
     print('\nCalculating User Stats...\n')
     start_time = time.time()
@@ -178,7 +215,11 @@ def user_stats(df):
 
 #########################################################################################
 def display_raw_data(city):
-    """importing city from get_filters function as input and returns the raw data of that city as chunks of 5 rows based upon user input.
+    """
+    Displays 5 lines of raw data at a time when prompted by the user.
+
+    Args:
+        (str) city - name of the city to display raw data from
     """
     # Loading data for the specified city:
     df = pd.read_csv(CITY_DATA[city])
@@ -204,6 +245,9 @@ def display_raw_data(city):
                 
 #########################################################################################
 def main():
+    """
+    Main function to run the bikeshare data analysis program.
+    """
     while True:
         city, month, day = get_filters()
         df = load_data(city, month, day)
