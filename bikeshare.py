@@ -221,27 +221,28 @@ def display_raw_data(city):
     Args:
         (str) city - name of the city to display raw data from
     """
-    # Loading data for the specified city:
     df = pd.read_csv(CITY_DATA[city])
-    print('\nRaw data is available to check... \n')
+    print('\nRaw data is available to check...')
     
-    # Getting user input:
-    response = input("Would you like to see some ?\nType \'Yes\' or \'No\': ").lower()
-      
-    # Looping & Loading 5 rows at a time according to user input:    
-    while response == 'yes' :
-        for chunk in pd.read_csv(CITY_DATA[city], chunksize = 5) :
-            print("Here is a five rows from the raw data:\n\n", chunk)
-            response = input("Would you like to see another 5 rows ?\nType \'Yes\' or \'No\': ").lower()
-            # Evaluating user input:
-            if response not in ['yes' , 'no'] :
-                print('\nInvalid input...')
-                response = input( 'make assure that you\'re typing ( yes or no ): ')
-            elif response == 'yes' :
-                continue
-            elif response == 'no' :
-                print('\n        Thank You \n\nExisting... ')
+    start_index = 0
+    
+    while True:
+        response = input("Would you like to see 5 rows of raw data? (yes/no): ").lower()
+        
+        if response == 'yes':
+            print(df.iloc[start_index:start_index + 5])
+            start_index += 5
+            
+            # Check if we've reached the end of the data
+            if start_index >= len(df):
+                print("No more data to display.")
                 break
+                
+        elif response == 'no':
+            print('\nThank you!')
+            break
+        else:
+            print('Invalid input. Please enter "yes" or "no".')
                 
 #########################################################################################
 def main():
